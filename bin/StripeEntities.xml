@@ -1,0 +1,371 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StripeEntities</name>
+    </assembly>
+    <members>
+        <member name="T:StripeEntities.IChargeEntity">
+            <summary>
+            Interface that defines an object's minimal properties to conveniently interact with the StripeManager
+            This represents items like a product that can be purchased using Stripe in your system
+            NOTE: This is NOT an IStripePersistentEntity - This object is NOT persisted in the Stripe API and is just a convenience
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IChargeEntity.Price">
+            <summary>
+            Gets or sets the price for this charge
+            This is the price in USD (EG: 19.99 for something that is nineteen-dollars and ninety-nine cents)
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IChargeEntity.Title">
+            <summary>
+            Gets or sets the title for this charge
+            This will appear in Stripe descritpion fields
+            </summary>
+        </member>
+        <member name="T:StripeEntities.IStripePersistentEntity">
+            <summary>
+            A common interface for all objects that mirror entities persisted in the Stripe API
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IStripePersistentEntity.PaymentSystemId">
+            <summary>
+            Gets or sets the payment information associated with this user
+            </summary>
+        </member>
+        <member name="T:StripeEntities.IStripeUserExtensions">
+            <summary>
+            Extension methods on the IPaymentUser interface
+            </summary>
+        </member>
+        <member name="M:StripeEntities.IStripeUserExtensions.HasPaymentInfo(StripeEntities.IStripePersistentEntity)">
+            <summary>
+            Returns true if the given user has payment information attached
+            Otherwise, returns false
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="T:StripeEntities.ISubscriptionEntity">
+            <summary>
+            Interface for an object providing data storage for subscriptions (links from customers to plans)
+            </summary>
+        </member>
+        <member name="T:StripeEntities.IPlanEntity">
+            <summary>
+            Interface for an object that provides subscription plan information
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IPlanEntity.Price">
+            <summary>
+            Gets or sets the price in USD for this plan
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IPlanEntity.Title">
+            <summary>
+            Gets or sets the title for this plan
+            </summary>
+        </member>
+        <member name="P:StripeEntities.IPlanEntity.TrialDays">
+            <summary>
+            Gets or sets the trial days for this plan
+            </summary>
+        </member>
+        <member name="T:StripeEntities.IPlanEntityExtensions">
+            <summary>
+            Extension methods for IPlanEntity
+            </summary>
+        </member>
+        <member name="M:StripeEntities.IPlanEntityExtensions.GeneratePaymentSystemId(StripeEntities.IPlanEntity)">
+            <summary>
+            Generates a new, unique payment system ID for this plan
+            NOTE: Should only be called once when creating the plan and only if there isn't a better human-readable ID in your system
+            </summary>
+            <param name="plan"></param>
+        </member>
+        <member name="T:StripeEntities.ICustomerEntity">
+            <summary>
+            An interface to be implemented by an object able to present data for Stripe customers
+            This is often implemented by the same object that identifies authenticated users in your system
+            </summary>
+        </member>
+        <member name="P:StripeEntities.ICustomerEntity.Email">
+            <summary>
+            Gets or sets the e-mail address for this user, which is used to uniquely identify them in the payment system
+            </summary>
+        </member>
+        <member name="T:StripeEntities.Product">
+            <summary>
+            Describes a product in the system, a repeatable type of transaction one can make
+            </summary>
+        </member>
+        <member name="P:StripeEntities.Product.State">
+            <summary>
+            Gets or sets the state of this product, dictating if it's available
+            </summary>
+        </member>
+        <member name="P:StripeEntities.Product.Title">
+            <summary>
+            Gets or sets the title for this product
+            This is a required field
+            </summary>
+        </member>
+        <member name="P:StripeEntities.Product.Description">
+            <summary>
+            Gets or sets the description for this product
+            </summary>
+        </member>
+        <member name="P:StripeEntities.Product.Price">
+            <summary>
+            Gets or sets the price for this product
+            EG: 99.99 (ninety-nine dollars and ninety-nine cents)
+            </summary>
+        </member>
+        <member name="T:StripeEntities.Product.ProductState">
+            <summary>
+            Enumeration for the possible states of a subscription
+            </summary>
+        </member>
+        <member name="F:StripeEntities.Product.ProductState.Pending">
+            <summary>
+            State indicating product is in the system, but not yet available
+            </summary>
+        </member>
+        <member name="F:StripeEntities.Product.ProductState.Available">
+            <summary>
+            State indicating the product is entered and available in the system
+            </summary>
+        </member>
+        <member name="F:StripeEntities.Product.ProductState.Retired">
+            <summary>
+            State indicating the product is in the system, but no longer available
+            </summary>
+        </member>
+        <member name="T:StripeEntities.StripeExtensions">
+            <summary>
+            Helpful extension methods for classes in Stripe.Net
+            </summary>
+        </member>
+        <member name="M:StripeEntities.StripeExtensions.GetDefaultSource(Stripe.StripeCustomer)">
+            <summary>
+            Gets the default card associated with this customer
+            </summary>
+            <param name="customer"></param>
+            <returns></returns>
+        </member>
+        <member name="T:StripeEntities.StripeManager">
+            <summary>
+            Wraps all of the functionality for stripe into a helper class taking only models as input and out
+            Uses Stripe.Net https://github.com/jaymedavis/stripe.net
+            This should make converting this functionality into another technology easier in the future
+            
+            1) Create a plan
+            2) Create a user (with payment token)
+            3) Subscribe a user to a plan
+            </summary>
+        </member>
+        <member name="M:StripeEntities.StripeManager.CreatePlan(StripeEntities.IPlanEntity)">
+            <summary>
+            Creates a new plan inside of Stripe, using the given subscription plan's information
+            NOTE: Unlike other method calls, this requires that the plan object already have a defined PaymentSystemId property set
+            </summary>
+            <param name="plan"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.UpdatePlan(StripeEntities.IPlanEntity)">
+            <summary>
+            Updates the given plan
+            NOTE: Due to limitatons with Stripe, this can only update the name of the plan
+            </summary>
+            <param name="plan"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.DeletePlan(StripeEntities.IPlanEntity)">
+            <summary>
+            Deletes a plan from Stripe
+            NOTE: Delete the model from the underlying context after calling this method
+            </summary>
+            <param name="plan"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.CreateCustomer(StripeEntities.ICustomerEntity,System.String)">
+            <summary>
+            Creates a new customer record in Stripe for the given user
+            This will set the "PaymentSystemId" property on the given IStripeUser instance if the user was successfully created
+            NOTE: Save changes on the underlying context for the model after calling this method
+            </summary>
+            <param name="customer"></param>
+            <param name="paymentToken"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.RetrieveCustomer(StripeEntities.ICustomerEntity)">
+            <summary>
+            Retrieves the StripeCustomer associated with the given IStripeUser instance
+            </summary>
+            <param name="customer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.UpdateCustomer(StripeEntities.ICustomerEntity,System.String)">
+            <summary>
+            Updates a customer record, using the given payment token
+            NOTE: Save changes on the underlying context for the model after calling this method
+            </summary>
+            <param name="customer"></param>
+            <param name="paymentToken"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.CreateOrUpdateCustomer(StripeEntities.ICustomerEntity,System.String)">
+            <summary>
+            Creates or update a customer
+            </summary>
+            <param name="customer"></param>
+            <param name="paymentToken"></param>
+        </member>
+        <member name="M:StripeEntities.StripeManager.Subscribe(StripeEntities.ICustomerEntity,StripeEntities.ISubscriptionEntity,StripeEntities.IPlanEntity)">
+            <summary>
+            Subscribes the given user to the given plan, using the payment information already in stripe for that user
+            NOTE: Save changes on the underlying context for the model after calling this method
+            </summary>
+            <param name="customer"></param>
+            <param name="subscription"></param>
+            <param name="plan"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.ChangeSubscriptionPlan(StripeEntities.ICustomerEntity,StripeEntities.ISubscriptionEntity,StripeEntities.IPlanEntity)">
+            <summary>
+            Changes the given subscription to use the new plan
+            </summary>
+            <param name="customer"></param>
+            <param name="subscription"></param>
+            <param name="newPlan"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.Unsubscribe(StripeEntities.ICustomerEntity,StripeEntities.ISubscriptionEntity)">
+            <summary>
+            Unsubscribes the given subscription
+            NOTE: Save changes on the underlying context for the model after calling this method
+            </summary>
+            <param name="customer"></param>
+            <param name="subscription"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.Charge(StripeEntities.ICustomerEntity,System.Single,System.String)">
+            <summary>
+            Charges the given user one time for the given price in USD
+            </summary>
+            <param name="customer"></param>
+            <param name="price"></param>
+            <param name="chargeDescription"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.Charge(System.String,System.Single,System.String)">
+            <summary>
+            Charges the given card token one time for the given price in USD
+            </summary>
+            <param name="cardToken"></param>
+            <param name="price"></param>
+            <param name="chargeDescription"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.Charge(StripeEntities.ICustomerEntity,StripeEntities.IChargeEntity)">
+            <summary>
+            Charges the given user for the given product
+            </summary>
+            <param name="user"></param>
+            <param name="product"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.CreateChargeOptions(System.Single,System.String)">
+            <summary>
+            Creates a new charge option instance, initializing it with common properties
+            </summary>
+            <param name="price"></param>
+            <param name="chargeDescription"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StripeEntities.StripeManager.ExecuteCharge(Stripe.StripeChargeCreateOptions)">
+            <summary>
+            Executes the given charge options, returning the ID for the charge
+            </summary>
+            <param name="charge"></param>
+            <returns></returns>
+        </member>
+        <member name="T:StripeEntities.SubscriptionEntityBase">
+            <summary>
+            A base model for connecting subscriptions to plans
+            This should be extended into an application-specific class
+            There should be one instance for each payment relationship between the system and a customer (one for each company)
+            </summary>
+        </member>
+        <member name="P:StripeEntities.SubscriptionEntityBase.ActiveUntil">
+            <summary>
+            Gets or sets the date this subscription will expire and be no longer valid
+            NOTE: This is constantly pushed forward by the recurring billing action of the system
+            </summary>
+        </member>
+        <member name="P:StripeEntities.SubscriptionEntityBase.PaymentSystemId">
+            <summary>
+            Gets or sets the identifier used by the payment system
+            </summary>
+        </member>
+        <member name="P:StripeEntities.SubscriptionEntityBase.PlanId">
+            <summary>
+            Gets or sets the ID of the related plan for this subscription
+            </summary>
+        </member>
+        <member name="P:StripeEntities.SubscriptionEntityBase.Plan">
+            <summary>
+            Gets or sets the plan for this subscription, which provides info to the billing system like price
+            </summary>
+        </member>
+        <member name="T:StripeEntities.PlanEntityBase">
+            <summary>
+            A model for capturing available subscription plans in the system
+            There should be one of these for each pricing/service tier in the system
+            These are mirrored into the billing system by API integration
+            </summary>
+        </member>
+        <member name="P:StripeEntities.PlanEntityBase.Title">
+            <summary>
+            Gets or sets the title for this plan
+            </summary>
+        </member>
+        <member name="P:StripeEntities.PlanEntityBase.PaymentSystemId">
+            <summary>
+            The identifier used over in Stripe for this plan
+            NOTE: This must be set for the plan before it can be created in Stripe
+            Once set, this should NEVER be modified without destroying the plan in Stripe first
+            </summary>
+        </member>
+        <member name="P:StripeEntities.PlanEntityBase.TrialDays">
+            <summary>
+            Gets or sets the number of trial days available on this plan
+            </summary>
+        </member>
+        <member name="P:StripeEntities.PlanEntityBase.Price">
+            <summary>
+            Gets or sets the price in USD for this plan
+            </summary>
+        </member>
+        <member name="P:StripeEntities.PlanEntityBase.State">
+            <summary>
+            Gets or sets the state for this plan
+            </summary>
+        </member>
+        <member name="T:StripeEntities.PlanEntityBase.PlanState">
+            <summary>
+            Enumeration for the possible states of a subscription
+            </summary>
+        </member>
+        <member name="F:StripeEntities.PlanEntityBase.PlanState.Pending">
+            <summary>
+            Indicates the plan is entered, but not yet available
+            </summary>
+        </member>
+        <member name="F:StripeEntities.PlanEntityBase.PlanState.Available">
+            <summary>
+            Indicates the plan is entered and available
+            </summary>
+        </member>
+        <member name="F:StripeEntities.PlanEntityBase.PlanState.Retired">
+            <summary>
+            Indicate the plan was once available, but is no longer 
+            </summary>
+        </member>
+    </members>
+</doc>
